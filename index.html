@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale= 1.0" />
+        <script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
+        <script src="/d3-tip.mjs"></script>
+        
+        <script  src="/hideinput.mjs"  type="module" ></script>
+        <script  src="/enablebouned.mjs"  type="module" ></script>
+
+        <title >HRenov-DM-S</title>
+        <style>
+          .d3-tip {
+            width: calc(14vw - 35px);
+            background: rgb(203, 238, 248);
+            border-radius: 6px;
+            padding: 5px;       /* TAKIT: Changed here */
+            top: -999px;        /* TAKIT: Changed here */
+            left: auto;       /* TAKIT: Changed here */
+            border: 2px solid rgb(30, 118, 145);
+            line-height: normal;
+            position: absolute; /* TAKIT: Changed here */
+            z-index: 1;
+            font-size: 12.5px;
+            /*line-height: normal;
+            padding: 5px 5px;
+            left: 50px;
+            background:rgb(7, 7, 7);
+            color: rgb(163, 159, 159);
+            border-radius: 6px;
+            border: 2px solid grey;
+            font-size: 18px;*/
+           
+          }
+          
+            svg {
+              font: 12px sans-serif;
+              padding: 5px  20px;
+            }
+            
+            .axis,
+            .frame {
+              shape-rendering: crispEdges;
+            }
+            
+            .axis line {
+              stroke: rgb(163, 160, 160);
+            }
+            
+            .axis path {
+              display: none;
+            }
+            
+            .cell text {
+              font-weight: bold;
+              text-transform: capitalize;
+              fill: rgb(235, 6, 6);
+            }
+            
+            .frame {
+              fill: none;
+              stroke: rgb(10, 10, 10);
+            }
+            
+            circle {
+              fill-opacity: 0.8;
+            }
+            
+            circle.hidden {
+              fill: rgb(183, 189, 246) !important;
+            }
+            
+            .extent {
+              fill: rgb(8, 8, 8);
+              fill-opacity: .125;
+              stroke: rgb(250, 245, 245);
+            }
+         /* Style the body */
+      body {
+        font-family: Arial;
+        margin: 0;
+        background: #edf0f0;
+      }
+      
+      /* Header/Logo Title */
+      .header {
+        padding: 1px;
+        background: #1da7b1;
+        color: #313131;
+        font-size: 15px;
+      }
+      
+      /* Page Content */
+      .content {
+        padding: 10px;
+        position: relative;
+        left: 10px;
+        top: -20px;
+      }
+
+      .sidenav {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+      }
+      
+      .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+      }
+      
+      .sidenav a:hover {
+        color: #f1f1f1;
+      }
+      
+      .sidenav .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+        margin-left: 50px;
+      }
+      
+      @media screen and (max-height: 450px) {
+        .sidenav {padding-top: 15px;}
+        .sidenav a {font-size: 18px;}
+      }
+      .span3 {
+        background:  #b9b9b9;
+        position: relative; 
+        top: 0px;
+        margin-left: -20px;
+        padding: 10px 0;
+        width: 220px;
+        height: 100%;
+      }
+      .span4 {
+        background:  #b9b9b9;
+        position: relative; 
+        top: 0px;
+        margin-left: 0px;
+        padding: 10px 0;
+        width: 220px;
+        height: 100%;
+      }
+      .span9 {
+        position: relative;
+        margin-right: 5px;
+        top: 0px;
+        float: left;
+        height: 100%;
+        width: 100%;
+      }
+      #myDIV {
+        width: 100%;
+        padding: 10px 0;
+        background-color: lightblue;
+        margin-top: 20px;
+      }
+      #myDIV23 {
+        width: 100%;
+        padding: 10px 0;
+        background-color: lightblue;
+        margin-top: 20px;
+      }
+      #myDIV4 {
+        width: 100%;
+        padding: 10px 0;
+        background-color: lightblue;
+        margin-top: 20px;
+      }
+      input[type="number"] {
+        padding: 0.5em;
+        font-size: 1em;
+        border-radius: 5px;
+        border: 1px solid gray;
+       
+        text-align: center;
+        box-shadow: 2px 2px 2px lightgray;
+        transition: all 0.5s;
+      }
+      
+      input[type="number"]:focus {
+        box-shadow: 4px 4px 4px lightgray;
+        transition: all 0.5s;
+      }
+      input[type="radio"] {
+        display: none;
+      }
+      
+      label {
+        display: inline-block;
+        margin-right: 18px;
+        font-family: sans-serif;
+        font-size: 16px;
+      }
+      
+      input[type="radio"]:checked + label {
+        font-weight: bold;
+        color: rgb(47, 0, 255);
+      }
+      
+      .x.axis path {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+    
+    .x.axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+    
+    .y.axis path {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+    
+    .y.axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+    
+    .dot {
+      fill: steelblue;
+      stroke: lightgray;
+      stroke-width: 1.5px;
+    }
+    
+    .legend text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+
+    #scatterplot-container {
+      position: absolute;
+      left: 50px;
+      top: 100px;
+    }
+        </style>
+        <body>
+            <div id="mySidenav" class="sidenav">
+                <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+                <a href="#">PV system</a>
+                <a href="#">Envelope</a>
+              </div>
+
+              <div class="header">
+                <h1>Hopsital Building Renovation </h1>
+                <p style="font-style: italic">Hospital Managers (Decision-Makers) decision support tool</p>
+              </div>
+
+              <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Renovation Subjects</span>
+
+                    <script>
+                    function openNav() {
+                    document.getElementById("mySidenav").style.width = "250px";
+                    }
+
+                    function closeNav() {
+                    document.getElementById("mySidenav").style.width = "0";
+                    }
+                    </script>
+                <hr>
+                <h2>PV system</h2>
+                <div id="parent1"  style="float:left;width: 15%;">
+              <div class="content">
+               
+                <div class="span3">
+                  
+                  <div>
+                   <label><strong>Enter your building consumption per year</strong><button onclick="myFunction55()" style="margin-left: 11px;background-color: #485fb9;
+                    color: white;
+                    padding: 0.3em 0.6em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;"><strong>></strong></button></label> 
+                   
+                    <div id="myDIV55" style="display: none;background-color: #ebe6e6;">
+                      <label >Energy consumption (kWh/year): <button onclick="myFunction56()" style="margin-left: 82px;background-color: #6c6c6c;
+                        color: white;
+                        padding: 0.08em 0.3em;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer; "><strong>></strong></button> <br></label>
+                     
+
+                      <div id="myDIV56" style="display: none;background-color: #ebe6e6;">
+                      <input class="input2"type="number" id="cons"  value="35000" step="any" ><br>
+                  
+                      
+                      
+                      </div>
+                      
+              </div>
+                  </div>
+               </div>
+
+               <div class="span3">
+                  
+                <div>
+                 <label><strong>Enter study lifespan</strong><button onclick="myFunction19()" style="margin-left: 25px;background-color: #485fb9;
+                  color: white;
+                  padding: 0.3em 0.6em;
+                  border: none;
+                  border-radius: 5px;
+                  cursor: pointer;"><strong>></strong></button></label> 
+                 
+                  <div id="myDIV19" style="display: none;background-color: #ebe6e6;">
+                    <label >PV lifespan (year):  <button onclick="myFunction20()" style="margin-left: 33px;background-color: #6c6c6c;
+                      color: white;
+                      padding: 0.08em 0.3em;
+                      border: none;
+                      border-radius: 5px;
+                      cursor: pointer; "><strong>></strong></button> <br></label>
+                  
+
+                    <div id="myDIV20" style="display: none;background-color: #ebe6e6;">
+                    <input class="input2"type="number" id="year"  value="1" step="any" ><br>
+                
+                    
+                    
+                    </div>
+                    
+            </div>
+                </div>
+             </div>
+
+                <div class="span3">
+                  
+                   <div>
+                    <label><strong>Method selection</strong></label> 
+                    <button onclick="myFunction45()" style="margin-left: 25px;background-color: #485fb9;
+                    color: white;
+                    padding: 0.3em 0.6em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;"><strong>></strong></button>
+                    <div id="myDIV45" style="display: none;background-color: #cfe3fc;">
+                        <input type="radio" id="choice1" name="choice1" value="choice1">
+                        <label for="choice1">Bounded</label><br>
+                        
+                        <input type="radio" id="choice2" name="choice1" value="choice2" onclick="enableCreateUser()">
+                        <label for="choice2">Focused</label><br>
+                        
+                        
+                      </div>
+                   </div>
+                </div>
+                <div class="span3">
+                    <div>
+                    <label><strong>Manipulate Parameters</strong></label> 
+                    <button onclick="myFunction1();myFunction23()" style="margin-left: -19px;background-color: #485fb9;
+                    color: white;
+                    padding: 0.3em 0.6em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;"><strong>></strong></button>
+
+                            <div id="myDIV" style="display: none">
+                                <label><strong>Loss of load probability</strong><br>(F1): </label>
+                                <button onclick="myFunction2();myFunction7();myFunction14()" style=" margin-left: -15px;background-color: #485fb9;
+                                color: white;
+                                padding: 0.3em 0.6em;
+                                border: none;
+                                border-radius: 5px;
+                                cursor: pointer;"><strong>></strong></button> 
+
+                                <div id="myDIV2" style="display: none;background-color: #b3b3b3;">
+                                    
+                                      
+                                      <label ><strong> Total area (m²):</strong></label>
+                                      <button onclick="myFunction3();myFunction5();myFunction12()" style="margin-left: 48px;background-color: #5ab2f5;
+                                      color: white;
+                                      padding: 0.1em 0.4em;
+                                      border: none;
+                                      border-radius: 5px;
+                                      cursor: pointer; "><strong>></strong></button> <br>
+
+                                                    <div id="myDIV3" style="display: none;background-color: #ebe6e6;">
+                                                       
+                                                        <label > Height of the area (m):</label>
+                                                        <button onclick="myFunction4()" style="margin-left: 2px;background-color: #6c6c6c;
+                                                        color: white;
+                                                        padding: 0.08em 0.3em;
+                                                        border: none;
+                                                        border-radius: 5px;
+                                                        cursor: pointer; "><strong>></strong></button> <br>
+
+                                                        <div id="myDIV4" style="display: none;background-color: #ebe6e6;">
+                                                        <input class="input2"type="number" id="height"  value="5" step="any" ><br>
+                                                    
+                                                       
+                                                        
+                                                        </div>
+                                                        
+                                                </div>
+                                                
+                                                    
+                                                            <div id="myDIV5" style="display: none;background-color: #ebe6e6;">
+                                                                
+                                                                <label > Width of the area (m):</label>
+                                                                <button onclick="myFunction6()" style="margin-left: 7px;background-color: #6c6c6c;
+                                                                color: white;
+                                                                padding: 0.08em 0.3em;
+                                                                border: none;
+                                                                border-radius: 5px;
+                                                                cursor: pointer; "><strong>></strong></button> <br>
+
+                                                                <div id="myDIV6" style="display: none;background-color: #ebe6e6;">
+                                                                <input class="input2"type="number" id="wid"  value="4" step="any" ><br>
+                                                            
+                                                                
+                                                                
+                                                                </div>
+                                                                
+                                                        </div>
+                                                        <div id="myDIV12" style="display: none;background-color: #ebe6e6;">
+                                                            
+                                                            <label > <input type="checkbox" id="1" disabled name="interest"  onclick="enablebox()" />Percent of free area<br>(%):</label>
+                                                            <button onclick="myFunction13()" style="margin-left: 0px;background-color: #6c6c6c;
+                                                            color: white;
+                                                            padding: 0.08em 0.3em;
+                                                            border: none;
+                                                            border-radius: 5px;
+                                                            cursor: pointer; "><strong>></strong></button> <br>
+
+                                                            <div id="myDIV13" style="display: none;background-color: #ebe6e6;">
+                                                            <input class="input2"type="number" id="percent" disabled value="15" step="any" ><br>
+                                                        
+                                                            <label >Max limit:</label><br>
+                                                            <input class="input2"type="number" id="percenth" value="20"step="any" ><br>
+                                                                            
+
+                                                            <label >Min limit:</label><br>
+                                                            <input class="input2"type="number" id="percentl" value="10" step="any" ><br>
+                                                            
+                                                            </div>
+                                                            
+                                                    </div>
+                                                
+                                                    
+                                 </div>
+                                 <div id="myDIV7" style="display: none;background-color: #b3b3b3;">
+                                    
+                                    
+                                    <label ><strong> Pv area (m²):</strong></label>
+                                    <button onclick="myFunction8();myFunction10()" style="margin-left: 65px;background-color: #5ab2f5;
+                                    color: white;
+                                    padding: 0.1em 0.4em;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer; "><strong>></strong></button> <br>
+
+                                                  <div id="myDIV8" style="display: none;background-color: #ebe6e6;">
+                                                      <label > <input type="checkbox" id="2" disabled name="interest" onclick="enablebox()"  />Height of PV module (m):<button onclick="myFunction9()" style="margin-left: 200px;background-color: #6c6c6c;
+                                                        color: white;
+                                                        padding: 0.08em 0.3em;
+                                                        border: none;
+                                                        border-radius: 5px;
+                                                        cursor: pointer; "><strong>></strong></button> <br></label>
+                                                      
+
+                                                      <div id="myDIV9" style="display: none;background-color: #ebe6e6;">
+                                                      <input class="input2"type="number" id="pvheight" disabled value="1.2" step="any" ><br>
+                                                  
+                                                      <label >Max limit:</label><br>
+                                                      <input class="input2"type="number" id="pvheighth" value="1.4"step="any" ><br>
+                                                                      
+
+                                                      <label >Min limit:</label><br>
+                                                      <input class="input2"type="number" id="pvheightl" value="1.1" step="any" ><br>
+                                                      
+                                                      </div>
+                                                      
+                                              </div>
+                                              
+                                                  
+                                                          <div id="myDIV10" style="display: none;background-color: #ebe6e6;">
+                                                              <label > <input type="checkbox" id="3" disabled name="interest" onclick="enablebox()"  />Width of PV module (m):<br></label>
+                                                              <button onclick="myFunction11()" style="margin-left: -16px;background-color: #6c6c6c;
+                                                              color: white;
+                                                              padding: 0.08em 0.3em;
+                                                              border: none;
+                                                              border-radius: 5px;
+                                                              cursor: pointer; "><strong>></strong></button> <br>
+
+                                                              <div id="myDIV11" style="display: none;background-color: #ebe6e6;">
+                                                              <input class="input2"type="number" id="pvwid" disabled value="1.2" step="any" ><br>
+                                                          
+                                                              <label >Max limit:</label><br>
+                                                              <input class="input2"type="number" id="pvwidh" value="1.3"step="any" ><br>
+                                                                              
+
+                                                              <label >Min limit:</label><br>
+                                                              <input class="input2"type="number" id="pvwidl" value="1" step="any" ><br>
+                                                              
+                                                              </div>
+                                                              
+                                                      </div>
+                                              
+                                                  
+                               </div>
+                               <div id="myDIV14" style="display: none;background-color: #b3b3b3;">
+                                    
+                                
+                                <label ><strong> Av. daily energy produciton (m²):</strong><button onclick="myFunction15();myFunction17();myFunction21()" style="margin-left: 60px;background-color: #5ab2f5;
+                                    color: white;
+                                    padding: 0.1em 0.4em;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer; "><strong>></strong></button> <br></label>
+                                
+
+                                              <div id="myDIV15" style="display: none;background-color: #ebe6e6;">
+                                                  <label ><input type="checkbox" id="4" disabled name="interest" onclick="enablebox()"  /> Av. daily solar radiation (kWh/m^2):<button onclick="myFunction16()" style="margin-left: 100px;background-color: #6c6c6c;
+                                                    color: white;
+                                                    padding: 0.08em 0.3em;
+                                                    border: none;
+                                                    border-radius: 5px;
+                                                    cursor: pointer; "><strong>></strong></button> <br>
+                                                    </label>
+
+                                                  <div id="myDIV16" style="display: none;background-color: #ebe6e6;">
+                                                    <input class="input2"type="number" id="avrad" disabled value="5" step="any" ><br>
+                                                  <label >Max limit:</label><br>
+                                                  <input class="input2"type="number" id="avradh" value="5.5"step="any" ><br>
+                                                                  
+
+                                                  <label >Min limit:</label><br>
+                                                  <input class="input2"type="number" id="avradl" value="4" step="any" ><br>
+                                                  
+                                                  </div>
+                                                  
+                                          </div>
+                                          
+                                              
+                                                      <div id="myDIV17" style="display: none;background-color: #ebe6e6;">
+                                                          <label > <input type="checkbox" id="5" disabled name="interest" onclick="enablebox()"  />Number of sun hours (hour/day):<button onclick="myFunction18()" style="margin-left: 103px;background-color: #6c6c6c;
+                                                            color: white;
+                                                            padding: 0.08em 0.3em;
+                                                            border: none;
+                                                            border-radius: 5px;
+                                                            cursor: pointer; "><strong>></strong></button> <br></label>
+                                                          
+
+                                                          <div id="myDIV18" style="display: none;background-color: #ebe6e6;">
+                                                          <input class="input2"type="number" id="numsun" disabled value="5" step="any" ><br>
+                                                      
+                                                          <label >Max limit:</label><br>
+                                                          <input class="input2"type="number" id="numsunh" value="6"step="any" ><br>
+                                                                          
+
+                                                          <label >Min limit:</label><br>
+                                                          <input class="input2"type="number" id="numsunl" value="4" step="any" ><br>
+                                                          
+                                                          </div>
+                                                          
+                                                  </div>
+                                                  
+                                            <div id="myDIV21" style="display: none;background-color: #ebe6e6;">
+                                                <label >PV Technology:  <button onclick="myFunction22()" style="margin-left: 65px;background-color: #6c6c6c;
+                                                    color: white;
+                                                    padding: 0.08em 0.3em;
+                                                    border: none;
+                                                    border-radius: 5px;
+                                                    cursor: pointer; "><strong>></strong></button> <br></label>
+                                              
+
+                                                <div id="myDIV22" style="display: none;background-color: #cfe3fc;">
+                                                    <input type="radio" id="choice3" name="choice2" value="choice3">
+                                                    <label for="choice3">Monocrystalline silicon (15-20 %)</label><br>
+                                                    
+                                                    <input type="radio" id="choice4" name="choice2" value="choice4">
+                                                    <label for="choice4">Polycrystalline silicon (12-16 %)</label><br>
+                                                    
+                                                    <input type="radio" id="choice5" name="choice2" value="choice5">
+                                                    <label for="choice5">Thin-film solar cells (5-12 %)</label><br>
+
+                                                    <input type="radio" id="choice16" name="choice2" value="choice16">
+                                                    <label for="choice16">Hybrid solar cells (20-30 %)</label><br>
+                                                  </div>
+                                                
+                                        </div>
+                                          
+                                              
+                           </div>
+                               
+                </div>
+             <div id="myDIV23" style="display: none">
+                <label><strong>Life cycle cost</strong><br>(F2):</label>
+                <button onclick="myFunction42();myFunction43();myFunction44()" style=" margin-left: 55px;background-color: #485fb9;
+                color: white;
+                padding: 0.3em 0.6em;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;"><strong>></strong></button> 
+
+                <div id="myDIV42" style="display: none;background-color: #b3b3b3;">
+
+                    
+                    <label ><strong> Initial and installation cost(Eur):</strong> <button onclick="myFunction24();myFunction29();myFunction34()" style="margin-left: 100px;background-color: #5ab2f5;
+                        color: white;
+                        padding: 0.1em 0.4em;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer; "><strong>></strong></button> <br></label>
+                   
+                <div id="myDIV24" style="display: none;background-color: #f5f4f4;">
+
+                    
+                    <label ><strong> Cost of panels <br>(Eur):</strong></label>
+                    <button onclick="myFunction25();myFunction27()" style="margin-left: 45px;background-color: #6c6c6c;
+                    color: white;
+                    padding: 0.1em 0.4em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer; "><strong>></strong></button> <br>
+
+                    <div id="myDIV25" style="display: none;background-color: #ebe6e6;">
+                        <label > <input type="checkbox" id="6" disabled name="interest" onclick="enablebox()"  />panel cost per watt(Eur/W):<button onclick="myFunction26()" style="margin-left: 68px;background-color: #6c6c6c;
+                          color: white;
+                          padding: 0.08em 0.3em;
+                          border: none;
+                          border-radius: 5px;
+                          cursor: pointer; "><strong>></strong></button> <br></label>
+                        
+
+                        <div id="myDIV26" style="display: none;background-color: #ebe6e6;">
+                        <input class="input2"type="number" id="caps" disabled value="2" step="any" ><br>
+                    
+                        <label >Max limit:</label><br>
+                        <input class="input2"type="number" id="caphs" value="3"step="any" ><br>
+                                        
+
+                        <label >Min limit:</label><br>
+                        <input class="input2"type="number" id="capls" value="0.6" step="any" ><br>
+                        
+                        </div>
+                </div>
+                <div id="myDIV27" style="display: none;background-color: #ebe6e6;">
+                    <label ><input type="checkbox" id="7" disabled name="interest" onclick="enablebox()"  /> PV Capacity(W):<button onclick="myFunction28()" style="margin-left:14px;background-color: #6c6c6c;
+                      color: white;
+                      padding: 0.08em 0.3em;
+                      border: none;
+                      border-radius: 5px;
+                      cursor: pointer; "><strong>></strong></button> <br></label>
+                    
+
+                    <div id="myDIV28" style="display: none;background-color: #ebe6e6;">
+                    <input class="input2"type="number" id="totacapacity" disabled value="20000" step="any" ><br>
+                
+                    <label >Max limit:</label><br>
+                    <input class="input2"type="number" id="totacapacityh" value="25000"step="any" ><br>
+                                    
+
+                    <label >Min limit:</label><br>
+                    <input class="input2"type="number" id="totacapacityl" value="15000" step="any" ><br>
+                    
+                    </div>
+            </div>
+
+                </div>
+                
+                <div id="myDIV29" style="display: none;background-color: #f8f5f5;">
+                    
+                    <label ><strong>Labor cost (Eur):</strong></label>
+                    <button onclick="myFunction30();myFunction32()" style="margin-left: 26px;background-color: #6c6c6c;
+                    color: white;
+                    padding: 0.1em 0.4em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer; "><strong>></strong></button> <br>
+
+                    <div id="myDIV30" style="display: none;background-color: #ebe6e6;">
+                        <label ><input type="checkbox" id="8" disabled name="interest" onclick="enablebox()"  /> cost per hour(Eur/hr):<button onclick="myFunction31()" style="margin-left: 4px;background-color: #6c6c6c;
+                          color: white;
+                          padding: 0.08em 0.3em;
+                          border: none;
+                          border-radius: 5px;
+                          cursor: pointer; "><strong>></strong></button> <br></label>
+                        
+
+                        <div id="myDIV31" style="display: none;background-color: #ebe6e6;">
+                        <input class="input2"type="number" id="laborcost" disabled value="100" step="any" ><br>
+                    
+                        <label >Max limit:</label><br>
+                        <input class="input2"type="number" id="laborcosth" value="150"step="any" ><br>
+                                        
+
+                        <label >Min limit:</label><br>
+                        <input class="input2"type="number" id="laborcostl" value="80" step="any" ><br>
+                        
+                        </div>
+                </div>
+                <div id="myDIV32" style="display: none;background-color: #ebe6e6;">
+                    <label > <input type="checkbox" id="9" disabled name="interest" onclick="enablebox()"  />Installation time (hr):<button onclick="myFunction33()" style="margin-left: 14px;background-color: #6c6c6c;
+                      color: white;
+                      padding: 0.08em 0.3em;
+                      border: none;
+                      border-radius: 5px;
+                      cursor: pointer; "><strong>></strong></button> <br></label>
+                    
+
+                    <div id="myDIV33" style="display: none;background-color: #ebe6e6;">
+                    <input class="input2"type="number" id="installationtime" disabled value="50" step="any" ><br>
+                
+                    <label >Max limit:</label><br>
+                    <input class="input2"type="number" id="installationtimeh" value="60"step="any" ><br>
+                                    
+
+                    <label >Min limit:</label><br>
+                    <input class="input2"type="number" id="installationtimel" value="30" step="any" ><br>
+                    
+                    </div>
+            </div>
+             </div>
+             <div id="myDIV34" style="display: none;background-color: #f8f5f5;">
+                
+                <label ><input type="checkbox" id="10" disabled name="interest" onclick="enablebox()"  /><strong>Equipment cost<br>(Eur):</strong></label>
+                <button onclick="myFunction35();" style="margin-left: 15px;background-color: #6c6c6c;
+                color: white;
+                padding: 0.1em 0.4em;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer; "><strong>></strong></button> <br>
+
+                <div id="myDIV35" style="display: none;background-color: #ebe6e6;">
+                    <input class="input2"type="number" id="costofeq" disabled value="10000" step="any" ><br>
+                
+                    <label >Max limit:</label><br>
+                    <input class="input2"type="number" id="costofeqh" value="15000"step="any" ><br>
+                                    
+
+                    <label >Min limit:</label><br>
+                    <input class="input2"type="number" id="costofeql" value="8000" step="any" ><br>
+                    
+                    </div>
+            </div>
+            </div>
+            <div id="myDIV43" style="display: none;background-color: #b3b3b3;">
+
+               
+                <label > <strong>Maintenance and replacement cost(Eur):</strong><button onclick="myFunction36();myFunction38();" style="margin-left: 5px;background-color: #5ab2f5;
+                    color: white;
+                    padding: 0.1em 0.4em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer; "><strong>></strong></button> <br></label>
+                
+            <div id="myDIV36" style="display: none;background-color:#ebe6e6;">
+                
+                <label ><input type="checkbox" id="11" disabled name="interest" onclick="enablebox()"  />Maintenance cost per year(Eur/yr):<button onclick="myFunction37();" style="margin-left: 90px;background-color:  #6c6c6c;
+                    color: white;
+                    padding: 0.1em 0.4em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer; "><strong>></strong></button> <br></label>
+                
+
+                <div id="myDIV37" style="display: none;background-color: #ebe6e6;">
+                    <input class="input2"type="number" id="costmaint" disabled value="500" step="any" ><br>
+                
+                    <label >Max limit:</label><br>
+                    <input class="input2"type="number" id="costmainth" value="800"step="any" ><br>
+                                    
+
+                    <label >Min limit:</label><br>
+                    <input class="input2"type="number" id="costmaintl" value="200" step="any" ><br>
+                    
+                    </div>
+            </div>
+            <div id="myDIV38" style="display: none;background-color:#ebe6e6;">
+                
+                <label ><input type="checkbox" id="12" disabled name="interest" onclick="enableCreateUser()"  />Replacement cost (Eur in 10 years):<button onclick="myFunction39();" style="margin-left: 106px;background-color: #6c6c6c;
+                    color: white;
+                    padding: 0.1em 0.4em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer; "><strong>></strong></button> <br></label>
+                
+
+                <div id="myDIV39" style="display: none;background-color: #ebe6e6;">
+                    <input class="input2"type="number" id="costrep" disabled value="2000" step="any" ><br>
+                
+                    <label >Max limit:</label><br>
+                    <input class="input2"type="number" id="costreph" value="3000"step="any" ><br>
+                                    
+
+                    <label >Min limit:</label><br>
+                    <input class="input2"type="number" id="costrepl" value="1000" step="any" ><br>
+                    
+                    </div>
+            </div>
+            </div>
+
+            <div id="myDIV44" style="display: none;background-color: #b3b3b3;">
+
+                
+                <label ><strong>Energy cost saving (Eur):</strong> <button onclick="myFunction40();" style="margin-left: 177px;background-color: #5ab2f5;
+                    color: white;
+                    padding: 0.1em 0.4em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer; "><strong>></strong></button> <br></label>
+               
+            <div id="myDIV40" style="display: none;background-color:#ebe6e6;">
+                
+                <label ><input type="checkbox" id="13" disabled name="interest" onclick="enableCreateUser()"  />Panel Cost of energy(Eur):<button onclick="myFunction41();" style="margin-left: 88px;background-color: #6c6c6c;
+                    color: white;
+                    padding: 0.1em 0.4em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer; "><strong>></strong></button> <br></label>
+                
+
+                <div id="myDIV41" style="display: none;background-color: #ebe6e6;">
+                    <input class="input2"type="number" id="costofenrgypane" disabled value="0.1" step="any" ><br>
+                
+                    <label >Max limit:</label><br>
+                    <input class="input2"type="number" id="costofenrgypaneh" value="0.15"step="any" ><br>
+                                    
+
+                    <label >Min limit:</label><br>
+                    <input class="input2"type="number" id="costofenrgypanel" value="0.05" step="any" ><br>
+                    
+                    </div>
+            </div>
+            </div>
+            
+                 </div>
+                 </div>
+                 </div>
+                 <div class="span3">
+                    <div>
+                     <label><strong>Data visualization</strong></label> 
+                     <button onclick="myFunction46();" style="margin-left: 30px;background-color: #485fb9;
+                    color: white;
+                    padding: 0.3em 0.6em;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;"><strong>></strong></button>
+                    <div id="myDIV46"class="checkbox-container" style="display: none;background-color: #cfe3fc;">
+                        <input type="checkbox" id="scatterplotmatrix" onclick="myFunction52()">
+                        <label for="checkbox1">Scatter plot matrix</label>
+
+                        <div id="myDIV52" class="checkbox-container" style="display: none;background-color: #cfe3fc;">
+                          <div>
+                           <button id="toggle-mod1" onclick="matrice();" style="margin-left: 10px;background-color: #485fb9;
+                           color: white;
+                           padding: 0.3em 0.6em;
+                           border: none;
+                           border-radius: 5px;
+                           cursor: pointer;"><strong>Show random population</strong></button>
+                        </div>
+                        <br>
+                        <div>
+                          <button id="opt1" onclick="matricensga();" style="margin-left: 30px;background-color: #485fb9;
+                          color: white;
+                          padding: 0.3em 0.6em;
+                          border: none;
+                          border-radius: 5px;
+                          cursor: pointer;"><strong>Add Optimized solution</strong></button>
+                       </div>
+                        
+                      </div>
+
+                        <br>
+                        <input type="checkbox" id="scatter plot" onclick="myFunction47();myFunction49();myFunction51();myFunction53()">
+                        <label for="checkbox2">Simple scatter plot</label>
+                        <div id="myDIV47" style="display: none;background-color: #ebe6e6;">
+                        <label ><strong>Select X Axis:</strong><button onclick="myFunction48();" style="margin-left: 75px;background-color: #5ab2f5;
+                            color: white;
+                            padding: 0.1em 0.4em;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer; "><strong>></strong></button> <br></label>
+
+                            <div id="myDIV48"class="checkbox-container" style="display: none;background-color: #cfe3fc;">
+                                <input type="radio" id="x-axis-f2"name="x-axis" value="f2">
+                                <label for="x-axis-f2">Loss of lood proba </label>
+                                <br>
+                                <input type="radio" id="x-axis-EnergyProduction"name="x-axis" value="EnergyProduction">
+                                <label for="x-axis-EnergyProduction">Annual Energy production</label>
+                                <br>
+                                <input type="radio" id="x-axis-PVarea"name="x-axis" value="PVarea" >
+                                <label for="x-axis-PVarea">Pvs area</label>
+                                <br>
+                                <input type="radio" id="x-axis-PVnumber"name="x-axis" value="PVnumber">
+                                <label for="x-axis-PVnumber">PVs number</label>
+                                <br>
+                                <input type="radio" id="x-axis-f1"name="x-axis" value="f1" >
+                                <label for="x-axis-f1">Life cycle cost</label>
+                                <br>
+                                <input type="radio" id="x-axis-initialC"name="x-axis" value="initialC" >
+                                <label for="x-axis-initialC">Initial and installation cost</label>
+                                <br>
+                                <input type="radio" id="x-axis-maintenanceC"name="x-axis" value="maintenanceC" >
+                                <label for="x-axis-maintenanceC">Maint & replace cost</label>
+                                <br>
+                                <input type="radio" id="x-axis-EnergySavings"name="x-axis" value="EnergySavings" >
+                                <label for="x-axis-EnergySavings">Energy cost savings</label>
+                            </div>
+                      </div>
+                      <div id="myDIV49" style="display: none;background-color: #ebe6e6;">
+                        <label ><strong>Select Y Axis:</strong><button onclick="myFunction50()" style="margin-left: 75px;background-color: #5ab2f5;
+                            color: white;
+                            padding: 0.1em 0.4em;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer; "><strong>></strong></button> <br></label>
+
+                            <div id="myDIV50"class="checkbox-container" style="display: none;background-color: #cfe3fc;">
+                                <input type="radio" id="y-axis-f2"name="y-axis" value="f2">
+                                <label for="y-axis-f2">Loss of lood proba </label>
+                                <br>
+                                <input type="radio" id="y-axis-EnergyProduction"name="y-axis" value="EnergyProduction" >
+                                <label for="y-axis-EnergyProduction">Annual Energy production</label>
+                                <br>
+                                <input type="radio" id="y-axis-PVarea"name="y-axis" value="PVarea" >
+                                <label for="y-axis-PVarea">Pvs area</label>
+                                <br>
+                                <input type="radio" id="y-axis-PVnumber"name="y-axis" value="PVnumber" >
+                                <label for="y-axis-PVnumber">PVs number</label>
+                                <br>
+                                <input type="radio" id="y-axis-f1"name="y-axis" value="f1">
+                                <label for="y-axis-f1">Life cycle cost</label>
+                                <br>
+                                <input type="radio" id="y-axis-initialC"name="y-axis" value="initialC" >
+                                <label for="y-axis-initialC">Initial and installation cost</label>
+                                <br>
+                                <input type="radio" id="y-axis-maintenanceC"name="y-axis" value="maintenanceC" >
+                                <label for="y-axis-maintenanceC">Maint & replace cost</label>
+                                <br>
+                                <input type="radio" id="y-axis-EnergySavings"name="y-axis" value="EnergySavings" >
+                                <label for="y-axis-EnergySavings">Energy cost savings</label>
+                            </div>
+                      </div>
+                      <div id="myDIV53" class="checkbox-container" style="display: none;background-color: #cfe3fc;">
+                       
+                       <div>
+                        <button id="toggle-mod" onclick="scatter();" style="margin-left: 10px;background-color: #485fb9;
+                        color: white;
+                        padding: 0.3em 0.6em;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;"><strong>Show random population</strong></button>
+                     </div>
+                      <br>
+                      <div>
+                        <button id="opt2" onclick="scatternsga();" style="margin-left: 30px;background-color: #485fb9;
+                        color: white;
+                        padding: 0.3em 0.6em;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;"><strong>Add Optimized solution</strong></button>
+                     </div>
+                      
+                    </div>
+                     <div id="myDIV51" class="checkbox-container" style="display: none;background-color: #cfe3fc;">
+                      <label ><strong>Modify axes:</strong><button onclick="myFunction54()" style="margin-left: 75px;background-color: #5ab2f5;
+                        color: white;
+                        padding: 0.1em 0.4em;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer; "><strong>></strong></button> <br></label>
+                        <div id="myDIV54"class="checkbox-container" style="display: none;background-color: #cfe3fc;">
+                          <label for="x-min">X Min:</label>
+                          <input type="number" id="x-min">
+                          
+                          <label for="x-max">X Max:</label>
+                          <input type="number" id="x-max">
+                          
+                          <label for="y-min">Y Min:</label>
+                          <input type="number" id="y-min">
+                          
+                          <label for="y-max">Y Max:</label>
+                          <input type="number" id="y-max">
+                          
+                          <button id="submit-button"style="margin-left: 30px;background-color: #485fb9;
+                          color: white;
+                          padding: 0.3em 0.6em;
+                          border: none;
+                          border-radius: 5px;
+                          cursor: pointer;">Submit</button>
+                        </div> 
+                </div> 
+                </div>
+                
+                    </div>
+                 </div>
+                 </div>
+                 
+                 <div>
+                  <button id="toggle-mod" onclick="randomnumbers();objfunc();mb8();" style="margin-left: 10px;background-color: #485fb9;
+                  color: white;
+                  padding: 0.3em 0.6em;
+                  border: none;
+                  border-radius: 5px;
+                  cursor: pointer;"><strong>Generate random population</strong></button>
+               </div>
+                <br>
+                <div>
+                  <button id="opt2" onclick="exportt();mb7();" style="margin-left: 30px;background-color: #485fb9;
+                  color: white;
+                  padding: 0.3em 0.6em;
+                  border: none;
+                  border-radius: 5px;
+                  cursor: pointer;"><strong>Add Optimized solution</strong></button>
+               </div>
+             
+               
+                 </div>
+                 <div id="parent2" style="float: left; width: 60%; margin-left: 20px;">
+                  <div id="chart3" style="display: inline-block; margin-bottom: -50px; width: 100%;"></div>
+                  <div id="scatter" style="display: inline-block; margin-bottom: -50px; width: 100%;"></div>
+                </div>
+                 
+                
+                 
+                
+              
+                  
+                  
+                 <script>
+                    function myFunction1() {
+                      var x = document.getElementById("myDIV");
+                      if (x.style.display === "none") {
+                        x.style.display = "block";
+                      } else {
+                        x.style.display = "none";
+                      }
+                    }
+                    function myFunction2() {
+                        var x = document.getElementById("myDIV2");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction3() {
+                        var x = document.getElementById("myDIV3");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction4() {
+                        var x = document.getElementById("myDIV4");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction5() {
+                        var x = document.getElementById("myDIV5");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction6() {
+                        var x = document.getElementById("myDIV6");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction7() {
+                        var x = document.getElementById("myDIV7");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction8() {
+                        var x = document.getElementById("myDIV8");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction9() {
+                        var x = document.getElementById("myDIV9");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction10() {
+                        var x = document.getElementById("myDIV10");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction11() {
+                        var x = document.getElementById("myDIV11");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction12() {
+                        var x = document.getElementById("myDIV12");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction13() {
+                        var x = document.getElementById("myDIV13");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction14() {
+                        var x = document.getElementById("myDIV14");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction15() {
+                        var x = document.getElementById("myDIV15");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction16() {
+                        var x = document.getElementById("myDIV16");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      
+                      function myFunction17() {
+                        var x = document.getElementById("myDIV17");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction18() {
+                        var x = document.getElementById("myDIV18");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction19() {
+                        var x = document.getElementById("myDIV19");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction20() {
+                        var x = document.getElementById("myDIV20");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction21() {
+                        var x = document.getElementById("myDIV21");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction22() {
+                        var x = document.getElementById("myDIV22");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction23() {
+                        var x = document.getElementById("myDIV23");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction24() {
+                        var x = document.getElementById("myDIV24");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction25() {
+                        var x = document.getElementById("myDIV25");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction26() {
+                        var x = document.getElementById("myDIV26");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction27() {
+                        var x = document.getElementById("myDIV27");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction28() {
+                        var x = document.getElementById("myDIV28");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction29() {
+                        var x = document.getElementById("myDIV29");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction30() {
+                        var x = document.getElementById("myDIV30");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction31() {
+                        var x = document.getElementById("myDIV31");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction32() {
+                        var x = document.getElementById("myDIV32");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction33() {
+                        var x = document.getElementById("myDIV33");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction34() {
+                        var x = document.getElementById("myDIV34");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction35() {
+                        var x = document.getElementById("myDIV35");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction36() {
+                        var x = document.getElementById("myDIV36");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction37() {
+                        var x = document.getElementById("myDIV37");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction38() {
+                        var x = document.getElementById("myDIV38");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction39() {
+                        var x = document.getElementById("myDIV39");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction40() {
+                        var x = document.getElementById("myDIV40");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction41() {
+                        var x = document.getElementById("myDIV41");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction42() {
+                        var x = document.getElementById("myDIV42");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction43() {
+                        var x = document.getElementById("myDIV43");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction44() {
+                        var x = document.getElementById("myDIV44");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction45() {
+                        var x = document.getElementById("myDIV45");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction46() {
+                        var x = document.getElementById("myDIV46");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction47() {
+                        var x = document.getElementById("myDIV47");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction48() {
+                        var x = document.getElementById("myDIV48");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction49() {
+                        var x = document.getElementById("myDIV49");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction50() {
+                        var x = document.getElementById("myDIV50");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction51() {
+                        var x = document.getElementById("myDIV51");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction52() {
+                        var x = document.getElementById("myDIV52");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction53() {
+                        var x = document.getElementById("myDIV53");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction54() {
+                        var x = document.getElementById("myDIV54");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction55() {
+                        var x = document.getElementById("myDIV55");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                      function myFunction56() {
+                        var x = document.getElementById("myDIV56");
+                        if (x.style.display === "none") {
+                          x.style.display = "block";
+                        } else {
+                          x.style.display = "none";
+                        }
+                      }
+                    /*  const toggleMod = document.querySelector('#toggle-mod');
+                          const mod = document.querySelector('#mod');
+
+                          toggleMod.addEventListener('click', function() {
+                            if (mod.style.display === 'none') {
+                              mod.style.display = 'flex';
+                            } else {
+                              mod.style.display = 'none';
+                            }
+                          });*/
+                    </script>
+                    <script  src="/random2.mjs"  type="module" ></script>
+                    <script  src="/objectivefunction.mjs"  type="module" ></script>
+                    <script  src="/fistmatrix2.mjs"  type="module" ></script>
+                    <script  src="/optmization.mjs"  type="module" ></script>
+                    <script  src="/optmatrix.mjs"  type="module" ></script>
+                    <script  src="/scatterplot.mjs"  type="module" ></script>
+                    <script  src="/optscatterplot.mjs"  type="module" ></script>
+        </body>
+    </head>
+    </html>

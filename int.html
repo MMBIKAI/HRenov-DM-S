@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale= 1.0" />
+        <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+        
+        
+        </head>
+        <body>
+            <div id="chart"></div>
+            <br>
+            <label for="x-min">X Min:</label>
+            <input type="number" id="x-min">
+            
+            <label for="x-max">X Max:</label>
+            <input type="number" id="x-max">
+            
+            <label for="y-min">Y Min:</label>
+            <input type="number" id="y-min">
+            
+            <label for="y-max">Y Max:</label>
+            <input type="number" id="y-max">
+            
+            <button id="submit-button">Submit</button>
+            <script>
+                var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var data = [
+{x: 10, y: 20},
+{x: 20, y: 30},
+{x: 30, y: 10},
+{x: 40, y: 50},
+{x: 50, y: 40}
+]; // Add your data here
+
+x.domain(d3.extent(data, function(d) { return d.x; })).nice();
+y.domain(d3.extent(data, function(d) { return d.y; })).nice();
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+var dots = svg.selectAll(".dot")
+    .data(data)
+  .enter().append("circle")
+    .attr("class", "dot")
+    .attr("cx", function(d) { return x(d.x); })
+    .attr("cy", function(d) { return y(d.y); })
+    .attr("r", 5);
+
+d3.select("#submit-button").on("click", function() {
+  var xMin = +d3.select("#x-min").property("value");
+  var xMax = +d3.select("#x-max").property("value");
+  var yMin = +d3.select("#y-min").property("value");
+  var yMax = +d3.select("#y-max").property("value");
+
+  x.domain([xMin, xMax]);
+  y.domain([yMin, yMax]);
+
+  zoom.x(x); //update the x scale in the zoom behavior
+  zoom.y(y); //update the y scale in the zoom behavior
+
+  svg.select(".x.axis").call(xAxis);
+  svg.select(".y.axis").call(yAxis);
+  
+  dots
+    .attr("cx", function(d) { return x(d.x); })
+    .attr("cy", function(d) { return y(d.y); });
+});
+var zoom = d3.behavior.zoom()
+    .x(x)
+    .y(y)
+    .scaleExtent([1, 10])
+    .on("zoom", zoomed);
+
+svg.call(zoom);
+
+function zoomed() {
+    svg.select(".x.axis").call(xAxis);
+    svg.select(".y.axis").call(yAxis);
+    dots.attr("cx", function(d) { return x(d.x); })
+        .attr("cy", function(d) { return y(d.y); });
+        /*zoom.x(x);
+        zoom.y(y);*/
+  }
+            </script>
+        </body>
+       </html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <style>
+      .dot {
+        fill: steelblue;
+        stroke: black;
+        stroke-width: 1.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <input type="radio" id="x-axis-a" name="x-axis" value="a" checked>
+      <label for="x-axis-a">A</label>
+      <input type="radio" id="x-axis-b" name="x-axis" value="b">
+      <label for="x-axis-b">B</label>
+      <input type="radio" id="y-axis-c" name="y-axis" value="c" checked>
+      <label for="y-axis-c">C</label>
+      <input type="radio" id="y-axis-d" name="y-axis" value="d">
+      <label for="y-axis-d">D</label>
+    </div>
+    <script>
+      var data = [
+        {a: 1, b: 2, c: 5, d: 7},
+        {a: 2, b: 3, c: 8, d: 11},
+        {a: 3, b: 4, c: 13, d: 17},
+        {a: 4, b: 5, c: 21, d: 26}
+      ];
+      
+      var width = 500, height = 500;
+      
+      /*var xScale = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) { return d.a; })])
+        .range([0, width]);
+      
+      var yScale = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) { return d.c; })])
+        .range([height, 0]);*/
+      
+      var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+      
+      svg.selectAll(".dot")
+        .data(data)
+        .enter().append("circle")
+        .attr("class", "dot")
+        .attr("cx", function(d) { return xScale(d.a); })
+        .attr("cy", function(d) { return yScale(d.c); })
+        .attr("r", 5);
+      
+      d3.selectAll("input").on("change", update);
+      
+      function update() {
+        var x_axis = d3.select("input[name='x-axis']:checked").node().value;
+        var y_axis = d3.select("input[name='y-axis']:checked").node().value;
+        
+        xScale.domain([0, d3.max(data, function(d) { return d[x_axis]; })]);
+        yScale.domain([0, d3.max(data, function(d) { return d[y_axis]; })]);
+        
+
+          svg.selectAll(".dot")
+      .data(data)
+      .transition()
+      .duration(500)
+      .ease("linear")
+      .attr("cx", function(d) { return xScale(d[x_axis]); })
+      .attr("cy", function(d) { return yScale(d[y_axis]); });
+    }
+  </script> 
+</body>
+</html>

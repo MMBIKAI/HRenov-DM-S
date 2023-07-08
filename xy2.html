@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <style>
+      .dot {
+        fill: steelblue;
+        stroke: black;
+        stroke-width: 1.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <input type="radio" id="x-axis-a" name="x-axis" value="a">
+      <label for="x-axis-a">A</label>
+      <input type="radio" id="x-axis-b" name="x-axis" value="b">
+      <label for="x-axis-b">B</label>
+      <input type="radio" id="y-axis-c" name="y-axis" value="c">
+      <label for="y-axis-c">C</label>
+      <input type="radio" id="y-axis-d" name="y-axis" value="d">
+      <label for="y-axis-d">D</label>
+    </div>
+    <button id="submit-button">Submit</button>
+    <script>
+      var data = [
+        {a: 1, b: 2, c: 5, d: 7},
+        {a: 2, b: 3, c: 8, d: 11},
+        {a: 3, b: 4, c: 13, d: 17},
+        {a: 4, b: 5, c: 21, d: 26}
+      ];
+      
+      var margin = {top: 20, right: 20, bottom: 30, left: 40};
+      var width = 960 - margin.left - margin.right;
+      var height = 500 - margin.top - margin.bottom;
+      
+      var xScale = d3.scale.linear()
+        .range([0, width]);
+      
+      var yScale = d3.scale.linear()
+        .range([height, 0]);
+      
+      var color = d3.scale.category10();
+      
+      var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      
+      d3.select("#submit-button").on("click", update);
+      d3.selectAll("input").on("change", update);
+      
+      function update() {
+        var x_axis = d3.select("input[name='x-axis']:checked").node().value;
+        var y_axis = d3.select("input[name='y-axis']:checked").node().value;
+      
+        xScale.domain([0, d3.max(data, function(d) { return d[x_axis]; })]);
+        yScale.domain([0, d3.max(data, function(d) { return d[y_axis]; })]);
+      
+        var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom");
+      
+        var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .orient("left");
+        
+        svg.select(".x.axis").remove();
+        svg.select(".y.axis").remove();
+      
+        svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .append("text")
+        .attr("class", "label")
+        .attr("x", width)
+        .attr("y", -6)
+        .style("text-anchor", "end")
+        .text(x_axis);
+      
+        svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text(y_axis);
+        
+        svg.selectAll(".dot").remove();
+        
+        svg.selectAll(".dot")
+          .data(data)
+          .enter().append("circle")
+          .attr("class", "dot")
+          .attr("cx", function(d) { return xScale(d[x_axis]); })
+          .attr("cy", function(d) { return yScale(d[y_axis]); })
+          .attr("r", 3.5)
+          .style("fill", function(d) { return color(d.species); });
+          }
+          
+          update();
+
+
+      /*var width = 500, height = 500;
+      
+      var xScale = d3.scale.linear()
+        .range([0, width]);
+      
+      var yScale = d3.scale.linear()
+        .range([height, 0]);
+      
+      var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+      
+      d3.select("#submit-button").on("click", update);
+      d3.selectAll("input").on("change", update);
+      
+      function update() {
+        var x_axis = d3.select("input[name='x-axis']:checked").node().value;
+        var y_axis = d3.select("input[name='y-axis']:checked").node().value;
+        
+        xScale.domain([0, d3.max(data, function(d) { return d[x_axis]; })]);
+        yScale.domain([0, d3.max(data, function(d) { return d[y_axis]; })]);
+        
+        svg.selectAll(".dot").remove();
+        
+        svg.selectAll(".dot")
+          .data(data)
+          .enter().append("circle")
+          .attr("class", "dot")
+          .attr("cx", function(d) { return xScale(d[x_axis]); })
+          .attr("cy", function(d) { return yScale(d[y_axis]); })
+          .attr("r", 5);
+          }*/
+          </script>
+          
+            </body>
+          </html>
+          
+          
+          
