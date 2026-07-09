@@ -23,7 +23,7 @@ The tool was built from **15+ operational requirements** gathered directly from 
 
 - Data visualization: D3.js, Plotly
 - Optimization: NSGA-II (multi-objective genetic algorithm)
-- [Add: backend framework, language, database if applicable]
+- NodeJS
 
 ## 👥 Who this was built for
 
